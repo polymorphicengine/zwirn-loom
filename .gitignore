@@ -1,0 +1,14 @@
+/dist
+/build
+/dist-newstyle
+/node_modules
+/tidal-gui-linux-x64
+/static/definitions/*
+/resources
+/src/Zwirn/Language/Parser.info
+/browse.txt
+/output.txt
+.ghc.environment.*
+package-lock.json
+
+out/
