@@ -1,6 +1,6 @@
-execpath := $(shell cabal list-bin zwirn-editor)
+execpath := $(shell cabal list-bin zwirn-loom)
 start:
-	cabal build --write-ghc-environment-files=always
+	cabal build
 	-rm -r build
 	mkdir build
 	cp $(execpath) build
