@@ -5,8 +5,8 @@
 module Editor.Config where
 
 {-
-    CommandLine.hs - configuration
-    Copyright (C) 2023, Martin Gius
+    Config.hs - configuration
+    Copyright (C) 2025, Martin Gius
 
     This library is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

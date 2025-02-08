@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
@@ -7,7 +6,7 @@ module Editor.UI where
 
 {-
     UI.hs - miscellanious functions for the user interface
-    Copyright (C) 2023, Martin Gius
+    Copyright (C) 2025, Martin Gius
 
     This library is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,9 +22,6 @@ module Editor.UI where
     along with this library.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
--- (Stream, sPMapMV, Pattern, queryArc, Arc(..))
--- import Sound.Tidal.Config as Conf
-
 import Control.Concurrent (threadDelay)
 import Control.Exception (SomeException)
 import Control.Monad (unless, void)
@@ -34,26 +30,11 @@ import Data.IORef (IORef, modifyIORef, readIORef)
 import Foreign.JavaScript (JSObject)
 import qualified Graphics.UI.Threepenny as UI
 import Graphics.UI.Threepenny.Core as C hiding (get, text, value)
-import Zwirn.Stream
 
-hush :: Stream -> x -> IO ()
-hush _ _ = return ()
+infixl 8 #@
 
-getOutputEl :: UI Element
-getOutputEl = do
-  win <- askWindow
-  elMay <- getElementById win "output"
-  case elMay of
-    Nothing -> error "can't happen"
-    Just el -> return el
-
-getDisplayElV :: UI Element
-getDisplayElV = do
-  win <- askWindow
-  elMay <- getElementById win "displayV"
-  case elMay of
-    Nothing -> error "can't happen"
-    Just el -> return el
+(#@) :: UI Element -> String -> UI Element
+(#@) mx s = mx # set (attr "id") s
 
 getCursorLine :: (ToJS a) => a -> UI Int
 getCursorLine cm = catchHaskellError 0 $ callFunction $ ffi "getCursorLine(%1)" cm
@@ -72,7 +53,31 @@ createHaskellFunction name fn = do
   handler <- ffiExport fn
   runFunction $ ffi ("window." ++ name ++ " = %1") handler
 
--- adding and removing editors
+-----------------------------------------------------------
+---------------------- adding messages --------------------
+-----------------------------------------------------------
+
+addElement :: String -> String -> Element -> UI ()
+addElement className containerId el = do
+  win <- askWindow
+  els <- getElementsByClassName win className
+  mayContainer <- getElementById win containerId
+  case mayContainer of
+    Nothing -> return ()
+    Just cont -> void $ element cont # set UI.children (el : els)
+
+addMessage :: String -> UI ()
+addMessage "" = return ()
+addMessage m = do
+  el <- mkMessage m
+  addElement "message" "message-container" el
+
+mkMessage :: String -> UI Element
+mkMessage m = UI.pre # set UI.text m #. "message"
+
+-----------------------------------------------------------
+---------------- adding and removing editors --------------
+-----------------------------------------------------------
 
 makeEditor :: String -> UI ()
 makeEditor i = runFunction $ ffi $ i ++ "cm = CodeMirror.fromTextArea(document.getElementById('" ++ i ++ "'), editorSettings);"
@@ -81,8 +86,9 @@ addEditor :: IORef [Element] -> UI ()
 addEditor ref = do
   old <- liftIO $ readIORef ref
   let x = show $ length old
-  editor <- UI.textarea # set (attr "id") ("editor" ++ x)
-  d <- UI.div #. "main" #+ [element editor] # set UI.style [("flex-grow", "8")]
+  liftIO $ putStrLn x
+  editor <- UI.textarea #@ ("editor" ++ x)
+  d <- UI.div #+ [element editor]
   liftIO $ modifyIORef ref (\xs -> xs ++ [d])
   redoEditorLayout ref
   makeEditor ("editor" ++ x)
@@ -101,12 +107,14 @@ redoEditorLayout :: IORef [Element] -> UI ()
 redoEditorLayout ref = do
   win <- askWindow
   eds <- liftIO $ readIORef ref
-  editorsMay <- getElementById win "editors"
+  editorsMay <- getElementById win "editor-container"
   case editorsMay of
     Nothing -> error "cant happen"
     Just editors -> void $ element editors # set UI.children eds
 
--- flashing
+-----------------------------------------------------------
+-------------------- block highlighting -------------------
+-----------------------------------------------------------
 
 highlightBlock :: JSObject -> Int -> Int -> String -> UI (Maybe JSObject)
 highlightBlock cm lineStart lineEnd color = catchHaskellErrorMaybe $ callFunction $ ffi "((%1).markText({line: %2, ch: 0}, {line: %3, ch: 0}, {css: %4}))" cm lineStart lineEnd color
@@ -134,10 +142,10 @@ flashError cm lineStart lineEnd = do
       flushCallBuffer
     Nothing -> return ()
 
-addMessage :: String -> UI ()
-addMessage s = getOutputEl >>= \out -> void $ element out # set UI.text s
+-----------------------------------------------------------
+---------------------- error handling ---------------------
+-----------------------------------------------------------
 
--- to catch javascript errors when using callFunction
 catchHaskellError :: a -> UI a -> UI a
 catchHaskellError x action = catch action (\(e :: SomeException) -> addMessage (show e) >> return x)
 

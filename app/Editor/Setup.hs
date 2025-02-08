@@ -4,7 +4,7 @@ module Editor.Setup (setup) where
 
 {-
     Setup.hs - setup of the various components of the backend
-    Copyright (C) 2023, Martin Gius
+    Copyright (C) 2025, Martin Gius
 
     This library is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@ import Editor.Config
 import Editor.Frontend
 import Editor.Highlight (highlightLoop, toggleHighlight)
 import Editor.UI
-import qualified Graphics.UI.Threepenny as UI
 import Graphics.UI.Threepenny.Core as C hiding (defaultConfig, text)
 import System.Directory.OsPath (doesDirectoryExist, doesFileExist, listDirectory)
 import System.OsPath (decodeUtf, encodeUtf)
@@ -41,16 +40,15 @@ import Zwirn.Stream
 
 setup :: FullConfig -> Window -> UI ()
 setup config win = void $ do
-  editor <- frontend win
-  setupEditors editor
+  frontend win
 
   str <- setupStream config
 
   setupHighlight config str
+  setupEditors
 
   setupBackend (fullConfigEditor config) str
   addFileInputAndSettings
-  makeEditor "editor0"
 
 setupStream :: FullConfig -> UI Stream
 setupStream config = do
@@ -86,10 +84,11 @@ setupBackend config str = do
 
   createHaskellFunction "hush" (liftIO $ return () :: IO ())
 
-setupEditors :: Element -> UI ()
-setupEditors mainEditor = do
-  editorsRef <- liftIO $ newIORef [mainEditor]
+setupEditors :: UI ()
+setupEditors = do
   win <- askWindow
+  editorsRef <- liftIO $ newIORef []
+  addEditor editorsRef
   createHaskellFunction "addEditor" (runUI win $ addEditor editorsRef)
   createHaskellFunction "removeEditor" (runUI win $ removeEditor editorsRef)
 
@@ -100,7 +99,7 @@ addFileInputAndSettings = do
   void $
     element body
       #+ [ fileInput,
-           tidalSettings
+           settings
          ]
 
 checkBoot :: EditorConfig -> Environment -> UI Environment
@@ -121,8 +120,8 @@ checkBoot (EditorConfig _ _ path) env = do
           else return []
   res <- liftIO $ runCI env (compilerInterpreterBoot $ map pack ps)
   case res of
-    Left (CIError err newEnv) -> getOutputEl # set UI.text ("Error in Bootfile: " ++ err) >> return newEnv
+    Left (CIError err newEnv) -> addMessage ("Error in Bootfile: " ++ err) >> return newEnv
     Right newEnv ->
       if ps /= []
-        then getOutputEl # set UI.text ("Successfully loaded Bootfiles from " ++ path) >> return newEnv
-        else getOutputEl # set UI.text ("No Bootfiles found at " ++ path) >> return newEnv
+        then addMessage ("Successfully loaded Bootfiles from " ++ path) >> return newEnv
+        else addMessage ("No Bootfiles found at " ++ path) >> return newEnv

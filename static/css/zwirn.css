@@ -1,0 +1,63 @@
+.container {
+    display: block;
+    border: 2px solid #dedede;
+    border-radius: 2px;
+    height: calc(100vh - 4px);
+    margin: 0px;
+    padding: 0px;
+}
+
+.message-container {
+    height: 19vh;
+    border: 2px solid #dedede;
+    border-radius: 2px;
+    padding: 10px;
+    overflow-wrap: break-word;
+    overflow: auto;
+}
+
+.message-container::-webkit-scrollbar {
+    display: none;
+}
+
+.editor-container {
+    display: grid;
+    height: 80vh;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 0.5fr;
+    border-bottom: 2px solid #dedede;
+    border-radius: 2px;
+    background-color: black;
+    overflow-wrap: break-word;
+}
+
+.editor {
+    overflow: hidden;
+    background: black;
+}
+
+.message {
+    color: white;
+    font-size: 2.5vh;
+    font-family: monospace;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+body {
+    background-color: black;
+    margin: 0px;
+    padding: 0px;
+    color: #fff;
+    line-height: 1.1;
+    overflow: hidden;
+    height: 100vh;
+}
+
+textarea {
+    background: black;
+}

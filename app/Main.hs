@@ -2,7 +2,7 @@ module Main where
 
 {-
     Main.hs - entry point of the editor program
-    Copyright (C) 2023, Martin Gius
+    Copyright (C) 2025, Martin Gius
 
     This library is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ main = do
   startGUI
     C.defaultConfig
       { jsStatic = Just $ execPath ++ "static",
-        jsCustomHTML = Just "tidal.html",
+        jsCustomHTML = Just "zwirn.html",
         jsPort = Just (tpPort fullConfig)
       }
     (setup fullConfig)

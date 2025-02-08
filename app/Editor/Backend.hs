@@ -2,7 +2,7 @@ module Editor.Backend where
 
 {-
     Backend.hs - Implements the interaction between the compiler-interpreter and the editor
-    Copyright (C) 2023, Martin Gius
+    Copyright (C) 2025, Martin Gius
 
     This library is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,11 +19,9 @@ module Editor.Backend where
 -}
 
 import Control.Concurrent.MVar (MVar, putMVar, takeMVar)
-import Control.Monad (void)
 import Data.Text (pack)
 import Editor.UI
 import Foreign.JavaScript (JSObject)
-import qualified Graphics.UI.Threepenny as UI
 import Graphics.UI.Threepenny.Core as C hiding (text)
 import Zwirn.Language.Compiler
 
@@ -42,7 +40,6 @@ evalContentAtLine :: EvalMode -> JSObject -> Int -> MVar Environment -> UI ()
 evalContentAtLine mode cm line envMV = do
   editorContent <- getValue cm
   editorNum <- getEditorNumber cm
-  out <- getOutputEl
   env <- liftIO $ takeMVar envMV
   let ci = case mode of
         EvalBlock -> compilerInterpreterBlock line editorNum (pack editorContent)
@@ -53,12 +50,12 @@ evalContentAtLine mode cm line envMV = do
     Left (CIError err newenv) -> case currBlock newenv of
       Just (CurrentBlock st end) -> do
         flashError cm st end
-        void $ element out # set UI.text err -- TODO: get block start and end for flashing error
+        addMessage err -- TODO: get block start and end for flashing error
         liftIO $ putMVar envMV newenv
       Nothing -> do
-        void $ element out # set UI.text err -- TODO: get block start and end for flashing error
+        addMessage err -- TODO: get block start and end for flashing error
         liftIO $ putMVar envMV newenv
     Right (resp, newEnv, st, end) -> do
       flashSuccess cm st end
-      _ <- element out # set UI.text resp
+      addMessage resp
       liftIO $ putMVar envMV newEnv

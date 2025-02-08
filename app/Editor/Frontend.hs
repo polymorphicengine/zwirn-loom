@@ -2,7 +2,7 @@ module Editor.Frontend where
 
 {-
     Frontend.hs - defines the html dom for the editor interface
-    Copyright (C) 2023, Martin Gius
+    Copyright (C) 2025, Martin Gius
 
     This library is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,75 +19,39 @@ module Editor.Frontend where
 -}
 
 import Control.Monad (void)
+import Editor.UI
 import qualified Graphics.UI.Threepenny as UI
 import Graphics.UI.Threepenny.Core as C hiding (text)
 import System.Environment (getExecutablePath)
 import System.FilePath (dropFileName)
 
-frontend :: Window -> UI Element
+frontend :: Window -> UI ()
 frontend win = do
-  void $ return win # set title "zwirn"
+  void $ return win # set title "zwirn-loom"
 
-  UI.addStyleSheet win "tidal.css"
-  UI.addStyleSheet win "theme.css"
+  setCallBufferMode NoBuffering
 
-  setCallBufferMode NoBuffering -- important for highlighting
-  mainEditor <-
-    UI.div
-      #. "main"
-      #+ [UI.textarea # set UI.id_ "editor0"]
-      # set UI.style [("flex-grow", "8")]
+  body <- UI.getBody win
 
-  container <-
-    UI.div
-      # set UI.id_ "container"
-      #. "flex-container CodeMirror cm-s-tomorrow-night-eighties"
+  void $ element body #+ [container]
 
-  editorContainer <-
-    UI.div
-      # set UI.id_ "editors"
-      #. "flex-container"
-      #+ [element mainEditor]
-      # set UI.style [("display", "flex"), ("flex-wrap", "wrap")]
+container :: UI Element
+container = UI.div #. "container" #+ [editorContainer, messageContainer]
 
-  body <- UI.getBody win # set UI.style [("background-color", "black")]
+editorContainer :: UI Element
+editorContainer = UI.div #. "editor-container" #@ "editor-container" -- #+ [editor]
 
-  void $
-    element body
-      #+ [ element container
-             #+ [ element editorContainer,
-                  outputWrapper
-                ]
-         ]
-  return mainEditor
+editor :: UI Element
+editor = UI.div #+ [UI.textarea #@ "editor0"]
 
-tidalSettings :: UI Element
-tidalSettings = do
+messageContainer :: UI Element
+messageContainer = UI.div #. "message-container" #@ "message-container"
+
+settings :: UI Element
+settings = do
   execPath <- liftIO $ dropFileName <$> getExecutablePath
-  tidalKeys <- liftIO $ readFile $ execPath ++ "static/tidalConfig.js"
+  tidalKeys <- liftIO $ readFile $ execPath ++ "static/zwirnKeys.js"
   mkElement "script" # set UI.text tidalKeys
-
--- canvas :: UI Element
--- canvas = do
---   winWidth <- getWindowWidth
---   winHeight <- getWindowHeight
---   UI.canvas # set UI.id_ "hydraCanvas" # set style [("position", "fixed")
---                                                    ,("left","0")
---                                                    ,("top","0")
---                                                    ,("width","100%")
---                                                    ,("height","100%")
---                                                    ,("pointer-events","none")]
---                                        # set UI.width (round $ winWidth*2)
---                                        # set UI.height (round $ winHeight*2)
-
-outputWrapper :: UI Element
-outputWrapper =
-  UI.div
-    #+ [ UI.pre
-           # set UI.id_ "output"
-           #. "outputBox"
-           # set style [("font-size", "3vh")]
-       ]
 
 fileInput :: UI Element
 fileInput =

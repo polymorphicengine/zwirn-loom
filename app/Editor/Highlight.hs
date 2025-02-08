@@ -2,7 +2,7 @@ module Editor.Highlight where
 
 {-
     Highlight.hs - Logic for pattern highlighting
-    Copyright (C) 2023, Martin Gius
+    Copyright (C) 2025, Martin Gius
 
     This library is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ unHighlight mark = runFunction $ ffi "if (typeof %1 !== 'undefined'){%1.clear()}
 unhighlightMany :: [JSObject] -> UI ()
 unhighlightMany = foldr ((>>) . unHighlight) (return ())
 
--- queries the pattern at time t and gets the locations of active events
+-- queries the zwirn at time t and gets the locations of active events
 locs :: ExpressionMap -> Double -> Zwirn Expression -> [Position]
 locs st t z = concatMap (fixLocs . info . fst) $ toList $ unzwirn z (Time (toRational t) 1) st
   where
@@ -88,9 +88,11 @@ highlightOnce stream cc cref buffMV = do
 highlightLoop :: Window -> Stream -> ClockConfig -> ClockRef -> MVar Buffer -> IO ()
 highlightLoop win stream cc cref buf = do
   runUI win $ highlightOnce stream cc cref buf
-  highlightLoop win stream cc cref buf -- runUI win $ runFunction $ ffi "requestAnimationFrame(highlightLoop)"
+  highlightLoop win stream cc cref buf
 
--- to turn highlighting on/off
+-----------------------------------------------------------
+----------- UI for turning highlighting ON/OFF ------------
+-----------------------------------------------------------
 
 highlightOff :: MVar Buffer -> UI ()
 highlightOff buffMV = do
