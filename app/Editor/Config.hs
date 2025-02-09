@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Editor.Config where
@@ -31,6 +32,7 @@ import GHC.Generics (Generic)
 import qualified Sound.Tidal.Clock as Clock (ClockConfig (..), defaultConfig)
 import System.Directory.OsPath
 import System.OsPath
+import Zwirn.Language.Compiler
 import Zwirn.Stream
 
 data EditorConfig = EditorConfig
@@ -52,10 +54,16 @@ data ClockConfig = ClockConfig
 
 data FullConfig = FullConfig
   { fullConfigEditor :: EditorConfig,
+    fullConfigCi :: CiConfig,
     fullConfigClock :: ClockConfig,
     fullConfigStream :: StreamConfig
   }
   deriving (Generic)
+
+deriving instance Generic CiConfig
+
+instance DefaultConfig CiConfig where
+  configDef = CiConfig False False
 
 instance DefaultConfig StreamConfig where
   configDef = StreamConfig 57120 57110 "127.0.0.1"
@@ -67,7 +75,9 @@ instance DefaultConfig ClockConfig where
   configDef = fromClock Clock.defaultConfig
 
 instance DefaultConfig FullConfig where
-  configDef = FullConfig configDef configDef configDef
+  configDef = FullConfig configDef configDef configDef configDef
+
+instance FromConfig CiConfig
 
 instance FromConfig EditorConfig
 

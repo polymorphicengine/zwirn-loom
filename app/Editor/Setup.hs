@@ -47,7 +47,7 @@ setup config win = void $ do
   setupHighlight config str
   setupEditors
 
-  setupBackend (fullConfigEditor config) str
+  setupBackend (fullConfigEditor config) (fullConfigCi config) str
   addFileInputAndSettings
 
 setupStream :: FullConfig -> UI Stream
@@ -66,10 +66,10 @@ setupHighlight config str = do
   createHaskellFunction "toggleHighlight" (runUI win $ toggleHighlight boolMV bufMV)
   (if editorConfigHighlight $ fullConfigEditor config then return () else toggleHighlight boolMV bufMV)
 
-setupBackend :: EditorConfig -> Stream -> UI ()
-setupBackend config str = do
+setupBackend :: EditorConfig -> CiConfig -> Stream -> UI ()
+setupBackend config ciConf str = do
   win <- askWindow
-  let env = Environment str builtinEnvironment (Just $ ConfigEnv configPath resetConfig) Nothing
+  let env = Environment str builtinEnvironment (Just $ ConfigEnv configPath resetConfig) Nothing ciConf
 
   bootEnv <- checkBoot config env
 
