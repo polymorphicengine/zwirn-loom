@@ -1,0 +1,75 @@
+name: Windows CI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        ghc: ["9.8.2"]
+        cabal: ["3.10.3.0"]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Setup Haskell
+        uses: haskell-actions/setup@v2
+        id: setup-haskell-cabal
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
+
+      - name: Freeze
+        run: |
+          cabal freeze
+      - name: Cache cabal
+        uses: actions/cache@v2
+        id: cache-cabal
+        with:
+          path: 'C:\sr'
+          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('D:\a\zwirn-loom\zwirn-loom\app\') }}-a
+
+      - name: Cache dist
+        uses: actions/cache@v2
+        id: cache-bin
+        with:
+          path: 'D:\a\tidal-gui\tidal-gui\dist-newstyle\'
+          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('D:\a\zwirn-loom\zwirn-loom\app\') }}-b
+
+      - name: cabal build
+        run: cabal v2-build --enable-tests
+
+      - name: create dir
+        run: New-Item -Path 'D:\a\zwirn-loom\zwirn-loom\build' -type directory
+
+      - name: move executable
+        run: Copy-Item -Path 'D:\a\zwirn-loom\zwirn-loom\dist-newstyle\build\x86_64-windows\ghc-${{ matrix.ghc }}\zwirn-loom-0.1.0.0\x\zwirn-loom\build\zwirn-loom\zwirn-loom.exe' -Recurse -Destination 'D:\a\zwirn-loom\zwirn-loom\build\cl-player.exe'
+
+      - name: move static
+        run: Copy-Item -Path 'D:\a\zwirn-loom\zwirn-loom\static\' -Recurse -Destination 'D:\a\zwirn-loom\zwirn-loom\build\static'
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: electron forge
+        run: |
+          npm install --save-dev @electron-forge/cli
+          npx electron-forge import
+          npm run make
+
+      - name: list files
+        run: Get-ChildItem -Path "D:\a\zwirn-loom\zwirn-loom\out\make" -Recurse
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/make/squirrel.windows/x64/*.exe
+            out/make/squirrel.windows/x64/*.nupkg
