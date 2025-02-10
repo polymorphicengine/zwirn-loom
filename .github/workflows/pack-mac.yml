@@ -50,7 +50,7 @@ jobs:
         run: mkdir build
 
       - name: move executable
-        run: cp -R dist-newstyle/build/x86_64-osx/ghc-${{ matrix.ghc }}/zwirn-loom-0.1.0.0/x/zwirn-loom/build/zwirn-loom/zwirn-loom build/zwirn-loom
+        run: cp -R dist-newstyle/build/x86_64-osx/ghc-${{ matrix.ghc }}/zwirn-loom-0.1.0/x/zwirn-loom/build/zwirn-loom/zwirn-loom build/zwirn-loom
 
       - name: move static
         run: cp -R static build/static

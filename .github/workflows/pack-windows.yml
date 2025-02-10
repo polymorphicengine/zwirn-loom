@@ -48,7 +48,7 @@ jobs:
         run: New-Item -Path 'D:\a\zwirn-loom\zwirn-loom\build' -type directory
 
       - name: move executable
-        run: Copy-Item -Path 'D:\a\zwirn-loom\zwirn-loom\dist-newstyle\build\x86_64-windows\ghc-${{ matrix.ghc }}\zwirn-loom-0.1.0.0\x\zwirn-loom\build\zwirn-loom\zwirn-loom.exe' -Recurse -Destination 'D:\a\zwirn-loom\zwirn-loom\build\cl-player.exe'
+        run: Copy-Item -Path 'D:\a\zwirn-loom\zwirn-loom\dist-newstyle\build\x86_64-windows\ghc-${{ matrix.ghc }}\zwirn-loom-0.1.0\x\zwirn-loom\build\zwirn-loom\zwirn-loom.exe' -Recurse -Destination 'D:\a\zwirn-loom\zwirn-loom\build\cl-player.exe'
 
       - name: move static
         run: Copy-Item -Path 'D:\a\zwirn-loom\zwirn-loom\static\' -Recurse -Destination 'D:\a\zwirn-loom\zwirn-loom\build\static'
