@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Editor.Config where
@@ -28,12 +29,18 @@ import Conferer.Source.CLIArgs as Cli
 import Conferer.Source.Env as Env
 import Conferer.Source.Yaml as Yaml
 import Control.Monad (unless)
+import qualified Data.ByteString as B
+import Data.FileEmbed
 import GHC.Generics (Generic)
 import qualified Sound.Tidal.Clock as Clock (ClockConfig (..), defaultConfig)
 import System.Directory.OsPath
+import System.File.OsPath as F
 import System.OsPath
 import Zwirn.Language.Compiler
 import Zwirn.Stream
+
+defaultConfigFile :: B.ByteString
+defaultConfigFile = $(embedFile "config.yaml")
 
 data EditorConfig = EditorConfig
   { editorConfigPort :: Int,
@@ -89,21 +96,18 @@ instance FromConfig FullConfig
 
 getConfig :: IO Conf.Config
 getConfig = do
-  curr <- getCurrentDirectory
   home <- getHomeDirectory
-  configDirPath <- (home <>) <$> encodeUtf "/.config/zwirn-editor/"
-  path <- (home <>) <$> encodeUtf "/.config/zwirn-editor/config.yaml"
-  defaultConfigPath <- (curr <>) <$> encodeUtf "/static/config.yaml"
+  configDirPath <- (home <>) <$> encodeUtf "/.config/zwirn-loom/"
+  path <- (home <>) <$> encodeUtf "/.config/zwirn-loom/config.yaml"
   createDirectoryIfMissing True configDirPath
   exists <- doesFileExist path
-  unless exists (copyFile defaultConfigPath path)
+  unless exists (F.writeFile path (B.fromStrict defaultConfigFile))
   decoded <- decodeUtf path
   mkConfig'
     []
     [ Cli.fromConfig,
-      Env.fromConfig "zwirn",
-      Yaml.fromFilePath decoded,
-      Yaml.fromFilePath "./static/config.yaml"
+      Env.fromConfig "loom",
+      Yaml.fromFilePath decoded
     ]
 
 tpPort :: FullConfig -> Int

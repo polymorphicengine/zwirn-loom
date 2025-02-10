@@ -26,6 +26,9 @@ executable zwirn-loom
                       directory,
                       conferer,
                       conferer-yaml,
+                      bytestring,
+                      file-embed,
+                      file-io,
                       zwirn-core >= 0.1 && < 0.2,
                       tidal-link >= 1.1 && < 1.2
     hs-source-dirs:   app

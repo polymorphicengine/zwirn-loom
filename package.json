@@ -1,11 +1,11 @@
 {
   "name": "zwirn-loom",
-  "version": "0.0.1",
+  "version": "0.1.0.0",
   "description": "An editor for the zwirn live coding language",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",
-    "pack-app": "electron-packager . zwirn --overwrite  --prune=true --ignore=\\.github --ignore=\\.stack-work --ignore=\\.gitignore --ignore=\\dist-newstyle",
+    "pack-app": "electron-packager . zwirn-loom --overwrite  --prune=true --ignore=/dist-newstyle --ignore=/node_modules",
     "postpack-app:darwin": "node ./postpack-app-darwin.js",
     "postpack-app:win32": "node ./postpack-app-win.js",
     "package": "electron-forge package",
@@ -23,28 +23,34 @@
   "author": "Martin Gius",
   "license": "GPL-3",
   "devDependencies": {
-    "@electron-forge/cli": "^6.2.1",
-    "@electron-forge/maker-deb": "^6.0.0-beta.64",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.64",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.64",
-    "@electron-forge/maker-zip": "^6.0.0-beta.64",
+    "@electron-forge/cli": "^6.4.2",
+    "@electron-forge/maker-deb": "^6.4.2",
+    "@electron-forge/maker-rpm": "^6.4.2",
+    "@electron-forge/maker-squirrel": "^6.4.2",
+    "@electron-forge/maker-zip": "^6.4.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
+    "@electron/packager": "^18.3.6",
     "electron": "^21.1.1",
     "ncp": "^2.0.0",
+    "rpmbuild": "^0.0.23",
     "run-script-os": "^1.1.6",
     "shelljs": "^0.8.3"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "electron": "^21.1.1",
-    "electron-squirrel-startup": "^1.0.0",
+    "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^8.1.0",
     "freeport": "^1.0.5",
-    "rpmbuild": "^0.0.23",
     "wait-on": "^3.3.0"
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "ignore": [
+          "/dist-newstyle"
+        ]
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
