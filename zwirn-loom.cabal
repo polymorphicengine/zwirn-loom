@@ -27,7 +27,7 @@ executable zwirn-loom
                       conferer,
                       conferer-yaml,
                       bytestring,
-                      file-embed,
+                      utf8-string,
                       file-io,
                       zwirn-core >= 0.1 && < 0.2,
                       tidal-link >= 1.1 && < 1.2

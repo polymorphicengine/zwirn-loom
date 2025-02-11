@@ -1,7 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Editor.Config where
@@ -29,8 +28,7 @@ import Conferer.Source.CLIArgs as Cli
 import Conferer.Source.Env as Env
 import Conferer.Source.Yaml as Yaml
 import Control.Monad (unless)
-import qualified Data.ByteString as B
-import Data.FileEmbed
+import qualified Data.ByteString.Lazy.UTF8 as BL
 import GHC.Generics (Generic)
 import qualified Sound.Tidal.Clock as Clock (ClockConfig (..), defaultConfig)
 import System.Directory.OsPath
@@ -38,9 +36,6 @@ import System.File.OsPath as F
 import System.OsPath
 import Zwirn.Language.Compiler
 import Zwirn.Stream
-
-defaultConfigFile :: B.ByteString
-defaultConfigFile = $(embedFile "config.yaml")
 
 data EditorConfig = EditorConfig
   { editorConfigPort :: Int,
@@ -101,7 +96,7 @@ getConfig = do
   path <- (home <>) <$> encodeUtf "/.config/zwirn-loom/config.yaml"
   createDirectoryIfMissing True configDirPath
   exists <- doesFileExist path
-  unless exists (F.writeFile path (B.fromStrict defaultConfigFile))
+  unless exists (F.writeFile path defaultConfigFile)
   decoded <- decodeUtf path
   mkConfig'
     []
@@ -122,7 +117,7 @@ toClock (ClockConfig a b c d e f) = Clock.ClockConfig (realToFrac a) (realToFrac
 configPath :: IO String
 configPath = do
   home <- getHomeDirectory
-  path <- (home <>) <$> encodeUtf "/.config/zwirn-editor/config.yaml"
+  path <- (home <>) <$> encodeUtf "/.config/zwirn-loom/config.yaml"
   exists <- doesFileExist path
   decoded <- decodeUtf path
   if exists then return decoded else return "Config file not found!"
@@ -131,9 +126,12 @@ resetConfig :: IO String
 resetConfig = do
   curr <- getCurrentDirectory
   home <- getHomeDirectory
-  configDirPath <- (home <>) <$> encodeUtf "/.config/zwirn-editor/"
-  path <- (home <>) <$> encodeUtf "/.config/zwirn-editor/config.yaml"
-  defaultConfigPath <- (curr <>) <$> encodeUtf "/static/config.yaml"
+  configDirPath <- (home <>) <$> encodeUtf "/.config/zwirn-loom/"
+  path <- (home <>) <$> encodeUtf "/.config/zwirn-loom/config.yaml"
   createDirectoryIfMissing True configDirPath
-  copyFile defaultConfigPath path
+  F.writeFile path defaultConfigFile
   return "Restored default config."
+
+
+defaultConfigFile :: BL.ByteString
+defaultConfigFile = BL.fromString "editor: \n  port: 8023\n  highlight: false\n  bootpath: \"\"\n\nci:\n  overwritebuiltin: false\n  dynamictypes: false\n\nstream:\n  port: 57120\n  address: \"127.0.0.1\"\n\nclock:\n  quantum: 4\n  beatspercycle: 4\n  frametimespan: 0.05\n  enablelink: false\n  skipticks: 10\n  processahead: 0.3"
