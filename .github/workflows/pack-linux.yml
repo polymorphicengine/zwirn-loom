@@ -53,7 +53,7 @@ jobs:
         run: cp -r static build/static
 
       - name: move executable
-        run: mv -r dist-newstyle/build/x86_64-linux/ghc-${{ matrix.ghc }}/zwirn-loom-0.1.0/x/zwirn-loom/build/zwirn-loom/zwirn-loom build/zwirn-loom
+        run: mv dist-newstyle/build/x86_64-linux/ghc-${{ matrix.ghc }}/zwirn-loom-0.1.0/x/zwirn-loom/build/zwirn-loom/zwirn-loom build/zwirn-loom
 
       - name: setup node
         uses: actions/setup-node@v3
