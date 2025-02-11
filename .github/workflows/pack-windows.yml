@@ -42,7 +42,7 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('D:\a\zwirn-loom\zwirn-loom\app\') }}-b
 
       - name: cabal build
-        run: cabal v2-build --enable-static --disable-static --enable-executable-stripping 
+        run: cabal v2-build --enable-static --enable-executable-static --enable-executable-stripping 
 
       - name: create dir
         run: New-Item -Path 'D:\a\zwirn-loom\zwirn-loom\build' -type directory
