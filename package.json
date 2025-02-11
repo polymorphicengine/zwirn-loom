@@ -47,9 +47,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "ignore": [
-          "/dist-newstyle"
-        ]
+        "ignore": []
       },
       "makers": [
         {
