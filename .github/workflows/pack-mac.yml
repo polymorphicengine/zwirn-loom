@@ -44,13 +44,13 @@ jobs:
       - name: cabal update and build
         run: |
           cabal update
-          cabal v2-build --enable-tests
+          cabal v2-build --enable-static --disable-static --enable-executable-stripping 
 
       - name: make directory
         run: mkdir build
 
       - name: move executable
-        run: cp -R dist-newstyle/build/x86_64-osx/ghc-${{ matrix.ghc }}/zwirn-loom-0.1.0/x/zwirn-loom/build/zwirn-loom/zwirn-loom build/zwirn-loom
+        run: mv -R dist-newstyle/build/x86_64-osx/ghc-${{ matrix.ghc }}/zwirn-loom-0.1.0/x/zwirn-loom/build/zwirn-loom/zwirn-loom build/zwirn-loom
 
       - name: move static
         run: cp -R static build/static
