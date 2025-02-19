@@ -44,7 +44,7 @@ jobs:
       - name: cabal update and build
         run: |
           cabal update
-          cabal v2-build --enable-static --enable-executable-static --enable-executable-stripping 
+          cabal v2-build --enable-executable-stripping 
 
       - name: make directory
         run: mkdir build
