@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         ghc: ["9.8.2"]
@@ -44,7 +44,7 @@ jobs:
       - name: cabal update and build
         run: |
           cabal update
-          cabal v2-build --enable-static --enable-executable-static --enable-executable-stripping 
+          cabal v2-build --enable-executable-stripping 
 
       - name: make directory
         run: mkdir build
