@@ -19,7 +19,7 @@ executable zwirn-loom
     build-depends:    base >= 4.17 && < 4.20,
                       text >= 2.1.1 && < 2.2,
                       containers >= 0.6.8 && < 0.7,
-                      zwirn >= 0.1 && < 0.2,
+                      zwirn >= 0.1.0.1 && < 0.2,
                       threepenny-gui,
                       exceptions,
                       filepath,
