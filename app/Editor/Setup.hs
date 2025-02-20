@@ -69,7 +69,7 @@ setupHighlight config str = do
 setupBackend :: EditorConfig -> CiConfig -> Stream -> UI ()
 setupBackend config ciConf str = do
   win <- askWindow
-  let env = Environment str builtinEnvironment (Just $ ConfigEnv configPath resetConfig) Nothing ciConf
+  let env = Environment str builtinEnvironment (Just $ ConfigEnv configPath resetConfig) Nothing ciConf Nothing
 
   bootEnv <- checkBoot config env
 
