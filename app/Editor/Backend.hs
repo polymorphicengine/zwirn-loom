@@ -18,12 +18,13 @@ module Editor.Backend where
     along with this library.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-import Control.Concurrent.MVar (MVar, putMVar, takeMVar)
+import Control.Concurrent.MVar (MVar, putMVar, takeMVar, readMVar)
 import Data.Text (pack)
 import Editor.UI
 import Foreign.JavaScript (JSObject)
 import Graphics.UI.Threepenny.Core as C hiding (text)
 import Zwirn.Language.Compiler
+import Zwirn.Stream (streamHush)
 
 data EvalMode
   = EvalBlock
@@ -59,3 +60,8 @@ evalContentAtLine mode cm line envMV = do
       flashSuccess cm st end
       addMessage resp
       liftIO $ putMVar envMV newEnv
+
+hush :: MVar Environment -> IO ()
+hush envMV = do
+    env <- readMVar envMV
+    streamHush (tStream env)

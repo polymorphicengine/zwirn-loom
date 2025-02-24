@@ -82,7 +82,7 @@ setupBackend config ciConf str = do
   createHaskellFunction "evalBlockAtLine" (\cm l -> runUI win $ evalContentAtLine EvalBlock cm l envMV)
   createHaskellFunction "evalLineAtLine" (\cm l -> runUI win $ evalContentAtLine EvalLine cm l envMV)
 
-  createHaskellFunction "hush" (liftIO $ return () :: IO ())
+  createHaskellFunction "hush" (hush envMV)
 
 setupEditors :: UI ()
 setupEditors = do
