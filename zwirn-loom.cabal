@@ -7,6 +7,7 @@ author:             Martin Gius
 maintainer:         gius_martin@yahoo.de
 build-type:         Simple
 extra-doc-files:    README.md
+tested-with:        GHC == 9.12.1, GHC == 9.8.2
 
 executable zwirn-loom
     main-is:          Main.hs
@@ -16,11 +17,11 @@ executable zwirn-loom
                       Editor.UI
                       Editor.Highlight
                       Editor.Config
-    build-depends:    base >= 4.17 && < 4.20,
+    build-depends:    base >= 4.18 && < 4.22,
                       text >= 2.1.1 && < 2.2,
-                      containers >= 0.6.8 && < 0.7,
+                      containers >= 0.6.8 && < 0.8,
                       zwirn >= 0.1.0.1 && < 0.2,
-                      threepenny-gui,
+                      threepenny-gui >= 0.8.3.2 && < 0.9.5,
                       exceptions,
                       filepath,
                       directory,
